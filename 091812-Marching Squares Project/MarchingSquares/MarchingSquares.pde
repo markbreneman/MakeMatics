@@ -10,6 +10,7 @@ void setup() {
   // the sketch to the image size
   img = loadImage("IMG_0023-900.png");
   size(img.width, img.height);
+
   // initialize an isolines finder based on img dimensions
   finder = new Isolines(this, img.width, img.height);
 }
@@ -24,25 +25,20 @@ void draw() {
   // find the isolines in the hue pixels
   finder.find(pix);
 
-  // draw the contours
-  stroke(0);
-  fill(32);
-  for (int k = 0; k < finder.getNumContours(); k++) {
-    finder.drawContour(k);
-  }
-  text("threshold: " + threshold, width-150, 20);
-  
-  
+  // draw the contours  
   //my start
   fill(255,0,0);
-  println(finder.getNumContours());
+  loadPixels();
+  
+  println("There are " + finder.getNumContours());
+  
   for (int k = 0; k < finder.getNumContours(); k++) {
     // get each contour as an array of PVectors
     // so we can work with the individual points
     PVector[] points = finder.getContourPoints(k);
-//    println(finder.measureArea(k));
+//    println("Contour "+ k +"has an area of "+finder.measureArea(k));
     // draw a shape for each contour
-    if(finder.measureArea(k)<0){
+    if(finder.measureArea(k)<0 && finder.contains(k,width/2,height/2)){
     beginShape();
     for (int i = 0; i < points.length; i++) {
       PVector p = points[i];
@@ -51,18 +47,30 @@ void draw() {
     // close the shape
     endShape(CLOSE);
   }}
+ 
+  // for (int i = 0; i < width; i++ ) {
+//  // Loop through every pixel row
+//  for (int j = 0; j < height; j++ ) {
+//  
+//  int loc = x + y*img.width;
+//  
+//  float r = red(img.pixels[loc]);
+//  float g = green(img.pixels[loc]);
+//  float b = blue(img.pixels[loc]);
+  
+  
   
   
 }
 
 void keyPressed() {
   if (key == '-') {
-    threshold-=5;
+    threshold-=1;
     if (threshold < 0) {
       threshold = 0;
     }
   }
   if (key == '=') {
-    threshold+=5;
+    threshold+=1;
   }
 }
