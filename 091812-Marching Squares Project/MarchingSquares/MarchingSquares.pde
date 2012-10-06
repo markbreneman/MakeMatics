@@ -5,10 +5,10 @@ import processing.pdf.*;
 
 Isolines finder;
 PImage img;
-int threshold = 120;
+int threshold = 17;
 
 boolean exporting = false;
-int layerResolution = 5;
+int layerResolution = 2;
 
 int contourR;
 int contourG;
@@ -20,7 +20,8 @@ int noPixels;
 void setup() {
   // load the image and scale
   // the sketch to the image size
-  img = loadImage("IMG_0023-900.png");
+  img = loadImage("IMG_0045-300.png");
+  
   size(img.width, img.height);
 
   // initialize an isolines finder based on img dimensions
@@ -111,7 +112,7 @@ void draw() {
     // have more layers to go,
     // so increase the threshold and go again
     // otherwise stop exporting
-    if (threshold < 255) {
+    if (threshold < 93) {
       threshold += layerResolution;
     } 
     else {
@@ -134,7 +135,7 @@ void keyPressed() {
   }
   if (key == ' ') {
     println("exporting layers");
-    threshold = 0;
+    threshold = 17;
     exporting = true;
   }
 }
