@@ -4,6 +4,8 @@ import processing.data.*;
 Table data;
 LinearClassifier classifier;
 String dayValue;
+String dayValue2;
+int scaleFactor;
 
 void setup() {
   size(800, 800);
@@ -39,10 +41,12 @@ void setup() {
   // pass the data to the classifier
   classifier.loadSet1(ITP);
   classifier.loadSet2(ChatID);
-
+  
+  
+  scaleFactor=600; 
   ArrayList<PVector> scales = new ArrayList<PVector>();
-  scales.add(new PVector(0, 24*60/2));
-  scales.add(new PVector(24*60/2, 0));
+  scales.add(new PVector(0, scaleFactor));
+  scales.add(new PVector(scaleFactor, 0));
   classifier.setOutputScale(scales);
 }
 
@@ -51,9 +55,9 @@ void draw() {
   noStroke();
 
   // display the data
-  fill(0, 0, 255);
+  fill(151, 8, 255);
   classifier.drawSet1();//ITP blue
-  fill(255, 0, 0);
+  fill(142, 194, 232);
   classifier.drawSet2();//ChatID RED
 
   // get the average of each set
@@ -80,20 +84,28 @@ void draw() {
   // this line should divide the two sets after classification
   stroke(0);
   drawPerpindicularLine(set1Ave.get(0), set1Ave.get(1), set2Ave.get(0), set2Ave.get(1));
+  
+  ////DECIDER INTERACTION  
 
-  noStroke();
-  if (classifier.isInSet1( new PVector(mouseX, mouseY))) {
-    fill(0, 0, 255);
-  } 
-  else {
-    fill(255, 0, 0);
-  }
-
-  ellipse(mouseX, mouseY, 10, 10);  
-
-  PVector p = classifier.getUnscaledPoint(new PVector(mouseX, mouseY));
+  //  int currentMinute= minute();
+  //  int currentHourInMinutes= hour()*60;//Processing uses 24hour clock
+  int currentTimeMinutes= minute()+hour()*60;
+  float mappedTimeMinutes=map(currentTimeMinutes,0,24*60,height,0);
+//  println(currentTimeMinutes);
+  
+  //day of the week as an array
+  Calendar c;
+  int currentDayOfWeek;
+  c = Calendar.getInstance();
+  currentDayOfWeek = c.get(Calendar.DAY_OF_WEEK);
+  println(currentDayOfWeek);
+  float mappedDayofWeek=map(currentDayOfWeek,0,6,0,width);
+  fill(255,0,255);
+  
+  ellipse(mappedDayofWeek-width/7, mappedTimeMinutes+33, 10, 10);
+  
   //time label Calculations
-  float minutesinHours=p.y*0.0166667;
+  float minutesinHours=currentTimeMinutes*0.0166667;
   int roundedHours= int(minutesinHours);
   int minuteZerosDecide=int((minutesinHours-roundedHours)*60);
   String remainderMinutes= String.valueOf(int((minutesinHours-roundedHours)*60));
@@ -108,28 +120,83 @@ void draw() {
   else {
     AMPM="AM";
   };  
-  if (p.x>=0 && p.x<=1) {
-    dayValue="Monday";
-  }
-  else if (p.x>=1 && p.x<=2) {
-    dayValue="Tuesday";
-  }
-  else if (p.x>=2 && p.x<=3) {
-    dayValue="Wednesday";
-  }
-  else if (p.x>=3 && p.x<=4) {
-    dayValue="Thursday";
-  }
-  else if (p.x>=4 && p.x<=5) {
-    dayValue="Friday";
-  }
-  else if (p.x>=5 && p.x<=6) {
-    dayValue="Saturday";
-  }
-  else if (p.x>=6) {
+  if (currentDayOfWeek>=0 && currentDayOfWeek<=1) {
     dayValue="Sunday";
   }
-  text( dayValue + "   " + roundedHours + " :" + remainderMinutes + " " + AMPM, mouseX+7, mouseY+7);
+  else if (currentDayOfWeek>=1 && currentDayOfWeek<=2) {
+    dayValue="Monday";
+  }
+  else if (currentDayOfWeek>=2 && currentDayOfWeek<=3) {
+    dayValue="Tuesday";
+  }
+  else if (currentDayOfWeek>=3 && currentDayOfWeek<=4) {
+    dayValue="Wednesday";
+  }
+  else if (currentDayOfWeek>=4 && currentDayOfWeek<=5) {
+    dayValue="Thursday";
+  }
+  else if (currentDayOfWeek>=5 && currentDayOfWeek<=6) {
+    dayValue="Friday";
+  }
+  else if (currentDayOfWeek>=6) {
+    dayValue="Saturday";
+  }
+  
+  
+  text("Today is" +  dayValue + "   " + roundedHours + " :" + remainderMinutes + " " + AMPM, mappedDayofWeek-width/7-10, mappedTimeMinutes+33+20);
+  
+
+  noStroke();
+  if (classifier.isInSet1( new PVector(mouseX, mouseY))) {
+    fill(0, 0, 255);
+  } 
+  else {
+    fill(255, 0, 0);
+  }
+
+  ellipse(mouseX, mouseY, 10, 10);  
+//
+//
+  PVector p = classifier.getUnscaledPoint(new PVector(mouseX, mouseY));
+//
+  //time label Calculations
+  float minutesinHours2=p.y*0.0166667;
+  int roundedHours2= int(minutesinHours2);
+  int minuteZerosDecide2=int((minutesinHours2-roundedHours2)*60);
+  String remainderMinutes2= String.valueOf(int((minutesinHours2-roundedHours2)*60));
+  String AMPM2;
+  if (minuteZerosDecide2<10) { 
+    remainderMinutes2 = nf(minuteZerosDecide2, 2);
+  }
+  if (roundedHours2>12) {
+    roundedHours2=roundedHours2-12;
+    AMPM2="PM";
+  }
+  else {
+    AMPM2="AM";
+  };  
+  if (p.x>=0 && p.x<=1) {
+    dayValue2="Sunday";
+  }
+  else if (p.x>=1 && p.x<=2) {
+    dayValue2="Monday";
+  }
+  else if (p.x>=2 && p.x<=3) {
+    dayValue2="Tuesday";
+  }
+  else if (p.x>=3 && p.x<=4) {
+    dayValue2="Wednesday";
+  }
+  else if (p.x>=4 && p.x<=5) {
+    dayValue2="Thursday";
+  }
+  else if (p.x>=5 && p.x<=6) {
+    dayValue2="Friday";
+  }
+  else if (p.x>=6) {
+    dayValue2="Saturday";
+  }
+  text( dayValue2 + "   " + roundedHours2 + " :" + remainderMinutes2 + " " + AMPM2, mouseX+7, mouseY+7);
 }
 
 void drawPerpindicularLine(float x1, float y1, float x2, float y2) {
