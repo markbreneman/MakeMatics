@@ -43,7 +43,7 @@ void setup() {
     else if (row.getString(9).equals("ChatID")) {
       ChatID.add(entry);
     }
-//    println(ITP);
+    
   }
 
   
@@ -96,7 +96,7 @@ void draw() {
 
 
   int currentTimeMinutes= minute()+hour()*60;
-  float mappedTimeMinutes=map(currentTimeMinutes, 0, 1375-10, height, 0); //1375 is the max minutes in the CSV; 10 is the ellipse size offset
+  float mappedTimeMinutes=map(currentTimeMinutes, 0, 24*60-120, height, 0); //1375 is the max minutes in the CSV; 10 is the ellipse size offset
   //Day of the Week as an number 0-6 starting with Sunday;
   Calendar c;
   int currentDayOfWeek;
@@ -105,7 +105,7 @@ void draw() {
   float mappedDayofWeek=map(currentDayOfWeek, 0, 6, 0, width);
   //Put an ellipse on Now 
   stroke(255, 0, 0);
-  ellipse(mappedDayofWeek-width/7, mappedTimeMinutes, 20, 20);
+  ellipse(mappedDayofWeek-width/7, mappedTimeMinutes, 20, 20);//TODAY AND NOW
 
   //Time Label Calculations
   float minutesinHours=currentTimeMinutes*0.0166667;
@@ -155,22 +155,22 @@ void draw() {
 //  println(decidePVector.x);
 //  println(decidePVector.y);
 
-  if (classifier.isInSet1(decidePVector)) {
-    fill(85,50,144);
-    rect(0, 0, width*2, height*2);
-    image(ITP, width/2, height/2);
-    fill(255, 255, 255);
-  } 
-  else {
-    fill(142, 194, 232);
-    rect(0, 0, width*2, height*2);
-    image(ChatID, width/2, height/2);
-    fill(255, 255, 255);
-  }
-  font = loadFont("Tungsten-Medium-48.vlw");
-  textAlign(CENTER);
-  textFont(font,72);
-  text("Ben's Probably Gonna Be at", width/2, height/4);
+//  if (classifier.isInSet1(decidePVector)) {
+//    fill(85,50,144);
+//    rect(0, 0, width*2, height*2);
+//    image(ITP, width/2, height/2);
+//    fill(255, 255, 255);
+//  } 
+//  else {
+//    fill(142, 194, 232);
+//    rect(0, 0, width*2, height*2);
+//    image(ChatID, width/2, height/2);
+//    fill(255, 255, 255);
+//  }
+//  font = loadFont("Tungsten-Medium-48.vlw");
+//  textAlign(CENTER);
+//  textFont(font,72);
+//  text("Ben's Probably Gonna Be at", width/2, height/4);
 
   ////DECIDING END////
   
