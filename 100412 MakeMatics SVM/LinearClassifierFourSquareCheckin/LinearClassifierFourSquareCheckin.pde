@@ -30,22 +30,23 @@ void setup() {
 
   // iterate through the data in the csv
   for (TableRow row : data) {
-    // put the height and weight data into an ArrayList
+    // put the Day and Time data into an ArrayList
     ArrayList<Float> entry = new ArrayList<Float>(); 
 
     entry.add(row.getFloat(6));//Day as a number
     entry.add(row.getFloat(8));//Time as a function of minutes    
 
-    // based on the f/m column
-    // put the Pvector in the right ArrayList for itp or woitp
+    // put the Pvector in the right ArrayList for ITP or ChatID
     if (row.getString(9).equals("ITP")) {
       ITP.add(entry);
     } 
     else if (row.getString(9).equals("ChatID")) {
       ChatID.add(entry);
     }
+//    println(ITP);
   }
 
+  
   // pass the data to the classifier
   classifier.loadSet1(ITP);
   classifier.loadSet2(ChatID);
@@ -95,8 +96,7 @@ void draw() {
 
 
   int currentTimeMinutes= minute()+hour()*60;
-  float mappedTimeMinutes=map(currentTimeMinutes, 0, 24*60, height, 0);
-
+  float mappedTimeMinutes=map(currentTimeMinutes, 0, 1375-10, height, 0); //1375 is the max minutes in the CSV; 10 is the ellipse size offset
   //Day of the Week as an number 0-6 starting with Sunday;
   Calendar c;
   int currentDayOfWeek;
@@ -105,7 +105,7 @@ void draw() {
   float mappedDayofWeek=map(currentDayOfWeek, 0, 6, 0, width);
   //Put an ellipse on Now 
   stroke(255, 0, 0);
-  ellipse(mappedDayofWeek-width/7, mappedTimeMinutes+33, 10, 10);
+  ellipse(mappedDayofWeek-width/7, mappedTimeMinutes, 20, 20);
 
   //Time Label Calculations
   float minutesinHours=currentTimeMinutes*0.0166667;
@@ -149,14 +149,14 @@ void draw() {
   ///DECIDING BEGINNING///
   ///COMMENT THIS DECIDING BOXED AREA OUT TO DEBUG DATA BEHING///
   
-//  PVector decidePVector = new PVector(mappedDayofWeek-width/7, mappedTimeMinutes+33);
-  PVector decidePVector = new PVector(700, 50); //ITP POINT
+  PVector decidePVector = new PVector(mappedDayofWeek-width/7, mappedTimeMinutes+33);
+//  PVector decidePVector = new PVector(700, 50); //ITP POINT
 //  PVector decidePVector = new PVector(300, 600); //CHATID POINT
 //  println(decidePVector.x);
 //  println(decidePVector.y);
 
   if (classifier.isInSet1(decidePVector)) {
-    fill(85,50,144  );
+    fill(85,50,144);
     rect(0, 0, width*2, height*2);
     image(ITP, width/2, height/2);
     fill(255, 255, 255);
@@ -173,6 +173,60 @@ void draw() {
   text("Ben's Probably Gonna Be at", width/2, height/4);
 
   ////DECIDING END////
+  
+  
+  ///FOR DEBUGGING DATA WITH MOUSE START////
+  noStroke();
+  if (classifier.isInSet1( new PVector(mouseX, mouseY))) {
+    fill(85,50,144);
+  } 
+  else {
+    fill(142, 194, 232);
+  }
+  ellipse(mouseX, mouseY, 10, 10);  
+  
+  PVector p = classifier.getUnscaledPoint(new PVector(mouseX, mouseY));
+  //time label Calculations
+  float minutesinHours2=p.y*0.0166667;
+  int roundedHours2= int(minutesinHours2);
+  int minuteZerosDecide2=int((minutesinHours2-roundedHours2)*60);
+  String remainderMinutes2= String.valueOf(int((minutesinHours2-roundedHours2)*60));
+  String AMPM2;
+  if (minuteZerosDecide2<10) { 
+    remainderMinutes2 = nf(minuteZerosDecide2, 2);
+  }
+  if (roundedHours2>12) {
+    roundedHours2=roundedHours2-12;
+    AMPM2="PM";
+  }
+  else {
+    AMPM2="AM";
+  };  
+  if (p.x>=0 && p.x<=1) {
+    dayValue2="Sunday";
+  }
+  else if (p.x>=1 && p.x<=2) {
+    dayValue2="Monday";
+  }
+  else if (p.x>=2 && p.x<=3) {
+    dayValue2="Tuesday";
+  }
+  else if (p.x>=3 && p.x<=4) {
+    dayValue2="Wednesday";
+  }
+  else if (p.x>=4 && p.x<=5) {
+    dayValue2="Thursday";
+  }
+  else if (p.x>=5 && p.x<=6) {
+    dayValue2="Friday";
+  }
+  else if (p.x>=6) {
+    dayValue2="Saturday";
+  }
+  text( dayValue2 + "   " + roundedHours2 + " :" + remainderMinutes2 + " " + AMPM2, mouseX+7, mouseY+7);
+   
+   ///FOR DEBUGGING DATA WITH MOUSE////
+  
 }
 
 void drawPerpindicularLine(float x1, float y1, float x2, float y2) {
