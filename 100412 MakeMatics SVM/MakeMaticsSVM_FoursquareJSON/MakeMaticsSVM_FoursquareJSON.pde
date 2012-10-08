@@ -7,26 +7,26 @@ LinearClassifier classifier;
 
 int scaleFactor;
 
-PImage ITP;
-PImage ChatID;
+PImage ITPLogo;
+PImage ChatIDLogo;
 PFont font;
 int count;
 int createdAt;
 
 ArrayList<String> months = new ArrayList<String>();//Months of the checkin
-ArrayList<String> dates = new ArrayList<String>();//Months of the checkin
+//ArrayList<String> dates = new ArrayList<String>();//Months of the checkin
 ArrayList days; //Days of the checkin
 ArrayList hours;//Hours of the checkin
 ArrayList years;//Years of the checkin
 ArrayList minutes;//Minutes of the checkin
-int dayValue;//A 0-6 value for the day Sunday is 0
-int timeMinutes;//Cumulatie time of checkin in Minutes 
+float dayValue; //Day of the Week 0-6 Starting with Sunday
+int timeMinutes;//Cumulative time of checkin in Minutes 
 
 void setup() {
   size(200, 200);
 
-  ITP=loadImage("ITPLogo.png");
-  ChatID=loadImage("ChatIDLogo.png");
+  ITPLogo=loadImage("ITPLogo.png");
+  ChatIDLogo=loadImage("ChatIDLogo.png");
   imageMode(CENTER);
 
   font = loadFont("Tungsten-Medium-48.vlw");
@@ -38,6 +38,10 @@ void setup() {
   // Get the JSON formatted response
   String fourSquareresponse = loadStrings( BASE_URL)[0];
   // Make sure we got a response.
+  
+  ArrayList<ArrayList> ITP = new ArrayList();
+  ArrayList<ArrayList> ChatID = new ArrayList();
+  
   if ( fourSquareresponse != null ) {
     // Initialize the JSONObject for the response
     JSONObject root = new JSONObject( fourSquareresponse ); //This is the Top Level JSON Object
@@ -50,78 +54,83 @@ void setup() {
     minutes=new ArrayList();
     years=new ArrayList();
     
-    
-
     for (int i=0; i<items.length(); i++) {
-      if (items.optJSONObject(i).getJSONObject("venue").getString("name").equals("ITP")|| items.optJSONObject(i).getJSONObject("venue").getString("name").equals("ChatID")) {
-        
+      if (items.optJSONObject(i).getJSONObject("venue").getString("name").equals("ITP")) {
+
         count++; 
-        
+
         createdAt = items.optJSONObject(i).getInt("createdAt");
         //DEBUG
-        String date = new java.text.SimpleDateFormat("MM/dd/yyyy/k/mm/a").format(new java.util.Date (createdAt*1000L));
-        dates.add(date);// Add Month to Months ArrayList
+//        String date = new java.text.SimpleDateFormat("MM/dd/yyyy/k/mm/a").format(new java.util.Date (createdAt*1000L));
+//        dates.add(date);// Add Month to Months ArrayList
 
-         String yearCheckin = new java.text.SimpleDateFormat("yyyy").format(new java.util.Date (createdAt*1000L));//From the Epoch Time Stamp Return the Day as String
-        int intyearCheckin = Integer.parseInt(yearCheckin);
-        years.add(intyearCheckin);// Add year to year ArrayList
-        
-        String monthCheckin = new java.text.SimpleDateFormat("MMMMM").format(new java.util.Date (createdAt*1000L));//From the Epoch Time Stamp Return the Month as String
-        months.add(monthCheckin);// Add Month to Months ArrayList
-        
+//        String yearCheckin = new java.text.SimpleDateFormat("yyyy").format(new java.util.Date (createdAt*1000L));//From the Epoch Time Stamp Return the Day as String
+//        int intyearCheckin = Integer.parseInt(yearCheckin);
+//        years.add(intyearCheckin);// Add year to year ArrayList
+
+//        String monthCheckin = new java.text.SimpleDateFormat("MMMMM").format(new java.util.Date (createdAt*1000L));//From the Epoch Time Stamp Return the Month as String
+//        months.add(monthCheckin);// Add Month to Months ArrayList
+
         String dayCheckin = new java.text.SimpleDateFormat("EEEEEE").format(new java.util.Date (createdAt*1000L));//From the Epoch Time Stamp Return the Day as String        
+
         ///Convert Days to 0-6 value ///
-          if (dayCheckin.equals("Sunday")){ 
+        
+        if (dayCheckin.equals("Sunday")) { 
           dayValue=0;
-          }
-          else if (dayCheckin.equals("Monday")){
+        }
+        else if (dayCheckin.equals("Monday")) {
           dayValue=1;
-          }
-          else if (dayCheckin.equals("Tuesday")){
+        }
+        else if (dayCheckin.equals("Tuesday")) {
           dayValue=2;
-          }
-          else if (dayCheckin.equals("Wednesday")){
+        }
+        else if (dayCheckin.equals("Wednesday")) {
           dayValue=3;
-          }
-          else if (dayCheckin.equals("Thursday")){
+        }
+        else if (dayCheckin.equals("Thursday")) {
           dayValue=4;
-          }
-          else if (dayCheckin.equals("Friday")){
+        }
+        else if (dayCheckin.equals("Friday")) {
           dayValue=5;
-          }
-          else if (dayCheckin.equals("Saturday")){
+        }
+        else if (dayCheckin.equals("Saturday")) {
           dayValue=6;
-          } 
+        } 
+        
         days.add(dayValue);// Add days to days ArrayList 
-        
+
         String hourCheckin = new java.text.SimpleDateFormat("k").format(new java.util.Date (createdAt*1000L));//From the Epoch Time Stamp Return the Day as String
-        int inthourCheckin = Integer.parseInt(hourCheckin);
-        hours.add(inthourCheckin);// Add hours to year ArrayList
-        
+        int inthourCheckin = Integer.parseInt(hourCheckin)*60;
+//        hours.add(inthourCheckin);// Add hours to year ArrayList
+
         String minuteCheckin = new java.text.SimpleDateFormat("mm").format(new java.util.Date (createdAt*1000L));//From the Epoch Time Stamp Return the Day as String
-        int intminuteCheckin = Integer.parseInt(minuteCheckin);
-        minutes.add(intminuteCheckin);// Add minutes to year ArrayList
+        int intminuteCheckin = Integer.parseInt(minuteCheckin)+inthourCheckin;
+        float floatminuteCheckin=float(intminuteCheckin);
+        minutes.add(floatminuteCheckin);// Add minutes to year ArrayList
         
-      }}
-      
-//      println(dates.get(0));
-//      println(months.get(0));
-//      println(days.get(0));
-//      println(years.get(0));
-//      println(hours.get(0));
-//      println(minutes.get(0));
-//      println("the Count is" + count);
+        ArrayList<Float> entry = new ArrayList<Float>(); 
+        entry.add(dayValue);//Day as a number
+        entry.add(floatminuteCheckin);//Time as a function of minutes 
+        ITP.add(entry);
+        }//end if ITP
+    }//end forLoop
+  
+//      ITP.add(days);
+//      ITP.add(minutes);
+    //      println(dates.get(0));
+    //      println(months.get(0));
+    //      println(days.get(0));
+    //      println(years.get(0));
+    //      println(hours.get(0));
+    //      println(minutes.get(0));
+    //      println("the Count is" + count);
+    
+  }//end if response from server
+  
+  classifier = new LinearClassifier(this);
+  println(ITP);
+}
 
-    }
-
-
-
-    classifier = new LinearClassifier(this);
-
-    ArrayList<ArrayList<Float>> ITP = new ArrayList<ArrayList<Float>>();
-    ArrayList<ArrayList<Float>> ChatID = new ArrayList<ArrayList<Float>>();
-  }
-
-  void draw() {
-  }
+void draw() {
+}
 
