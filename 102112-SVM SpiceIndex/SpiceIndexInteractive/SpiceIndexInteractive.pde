@@ -17,17 +17,18 @@ PImage testImage;
 
 void setup() {
   
-  size(640/2 + 60, 480/2); 
+  size(640, 480); 
   // capture video at half size for speed
-  video = new Capture(this, 640/2, 480/2);
+  video = new Capture(this, 640, 480);
   video.start();   
   // declare our SVM object
   model = new SVM(this);
-  model.loadModel("SpicerIndexer3model.txt",5);
+//  model.loadModel("SpicerIndexer3model.txt",5);
+model.loadModel("SpicerIndexer3model.txt",5);
   // initialize our PImage at 50x50
   // we'll use this to display the part
   // of the video feed we're searching
-  testImage = createImage(50, 50, RGB);
+  testImage = createImage(200, 200, RGB);
   
 }
 
@@ -50,7 +51,7 @@ void draw() {
   rect(video.width - rectW - (video.width - rectW)/2, video.height - rectH - (video.height - rectH)/2, rectW, rectH);
   
   
-//  println(testResult);
+//  print(testResult);
   if((int)testResult == 1){
     message = "Cardamom";
   } 
@@ -75,22 +76,18 @@ float[] buildVector(PImage img) {
   histogram.setImage(img);
   histogram.calculateHistogram();
   histogram.scale(0, 0.33);
-  return histogram.getHSV[();
+  return histogram.getHSV();
 }
 
 void keyPressed() {
   if(key == 's'){
-  testImage.copy(video, video.width - rectW - (video.width - rectW)/2, video.height - rectH - (video.height - rectH)/2, rectW, rectH, 0, 0, 100, 100);
+  testImage.copy(video, video.width - rectW - (video.width - rectW)/2, video.height - rectH - (video.height - rectH)/2, rectW, rectH, 0, 0, 300, 300);
 //  testImage.updatePixels();
   testImage.save("Sample"+count+".jpg");
   count++;
-  }
-  
-  if(key =='p'){
   histogram  = new Histogram();
   histogram.setNumBins(numBins);  
   PImage sampledImage = loadImage("Sample"+(count-1)+".jpg"); 
   testResult = model.test(buildVector(sampledImage));
-  println("fired!");
   }
 }
