@@ -22,8 +22,9 @@ int contrastK=120;
 PVector centroid;
 
 Paint paint;
+float angle = 0;
 ArrayList paintArray;
-float angle;
+ArrayList vertexes;
 boolean showArt;
 
 void setup() {
@@ -31,6 +32,8 @@ void setup() {
   opencv = new OpenCV(this);
   opencv.capture(imgWidth, imgHeight);
   centroid = new PVector();  
+  //Paint Details
+
   paintArray = new ArrayList();
   showArt = false;
 }
@@ -117,12 +120,10 @@ void draw() {
     }
 
     image(opencv.image(), 0, opencv.image().height, opencv.image().width*3, opencv.image().height*3);
-
     stroke(200);
     pushMatrix();
     translate(0, imgHeight);
     scale(3, 3);
-
     translate(centroid.x, centroid.y);
     strokeWeight(1);
     stroke(0, 255, 0);
@@ -131,6 +132,7 @@ void draw() {
     line(0, 0, axis2.x, axis2.y);
     popMatrix();
 
+    ///____ADD A COORDINATE AREA_____///
     pushMatrix();
     translate((opencv.image().width*3)/2, (opencv.image().height*5)/2);
     ellipse(0, 0, 10, 10);
@@ -140,45 +142,52 @@ void draw() {
     line(-coordVector.x, 0, coordVector.x, 0);
     line(0, coordVector.y, 0, -coordVector.y);
     popMatrix();
+    //___CALC ANGLES____//
     float a = degrees(PVector.angleBetween(coordVector, axis1));
-//    println(int(a));
+    //    println(int(a));
     float b = degrees(PVector.angleBetween(coordVector, axis2));
 
     fill(255, 255, 255);
-    text("PCA Object Axes:\nFirst two principle components centered at blob centroid", 10, height - 20);
-    //    text("Axis 1 Green, Axis 2 Red", 10, height - 20);
+    text("PCA Object Axes:\nFirst two principle components centered at blob centroid", 10, height - 40);
+    text("Axis 1 Green, Axis 2 Red", 10, height - 5);
 
     ///___________SPIN ART___________///////
     if (showArt==true) {
+      //      background(255);
+      smooth();
       stroke(255);
-      frameRate(5);
-      pushMatrix();
-      translate((opencv.image().width*3)/2, (opencv.image().height*5)/2);
-//      rotate(a);
-      rectMode(CENTER);
-      rect(0, 0, 10, 10);
-      if (paintArray.size()>0) {
+      //      frameRate(5);
+       if (paintArray.size()>0) {
         for (int i=0; i<paintArray.size(); i++) {
           Paint P=(Paint) paintArray.get(i);
           P.update();
           P.display();
         }
       }
+      pushMatrix();
+
+      //      translate((opencv.image().width*3)/2, (opencv.image().height*5)/2);
+      translate(0, imgHeight);
+      scale(3, 3);
+      translate(centroid.x, centroid.y);
+      scale(.3, .3);
+//      angle=degrees(frameCount);
+      rotate(radians(angle));
+      rectMode(CENTER);
+      rect(0, 0, 10, 10);
       popMatrix();
     }
   }
 }
 
 
-
 void mousePressed() {
-//  PVector mousePos=new PVector( mouseX-width/2, mouseY-height/2);
-//  PVector origin = new PVector(0,0,0); 
-//  float mouseDistance = abs(mousePos.dist(origin));
+  PVector mousePos=new PVector( mouseX-width/2, mouseY-height/2);
+  PVector origin = new PVector(0, 0, 0); 
+  float mouseDistance = abs(mousePos.dist(origin));
   paintArray.add(
-  new Paint( mouseX-(opencv.image().width*3)/2, mouseY-(opencv.image().height*5)/2)
+  new Paint(mouseDistance)
     );
-
 }
 
 void keyPressed() {
@@ -208,4 +217,10 @@ void keyPressed() {
   if (key == 'p') {
     showArt=!showArt;
   }
+  
+    if (key == 'a') {
+    angle+=keyIncrement;
+    println(angle);
+  }
 }
+

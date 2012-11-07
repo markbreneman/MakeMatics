@@ -13,12 +13,12 @@ void draw() {
   background(255);
   smooth();
   stroke(255);
-  frameRate(5);
+//  frameRate(5);
 
   pushMatrix();
   translate(width/2, height/2);
   //  println(frameCount);
-  //  angle=degrees(frameCount);
+//  angle=degrees(frameCount);
   rotate(radians(angle));
   rectMode(CENTER);
   rect(0, 0, 10, 10);
