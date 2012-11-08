@@ -15,7 +15,6 @@ PImage img;
 int imgWidth = 640/4;
 int imgHeight = 480/4;
 int brightnessK=30;
-//int brightnessK=60;
 int thresholdK=40;
 int contrastK=120;
 
@@ -79,8 +78,7 @@ void imageInGrid(PImage img, String message, int row, int col) {
 
 void draw() {
   background(125);
-  println("centroid x" + centroid.x);
-  println("centroid y" + centroid.y);
+
 
   opencv.read();
 
@@ -102,8 +100,8 @@ void draw() {
   imageInGrid(opencv.image(), "CONTRAST"+contrastK, 2, 3);
 
   Matrix m = toMatrix(opencv.image());
-  
-  
+
+
 
   if (m.getRowDimension() > 0) {
     pca = new PCA(m);
@@ -125,10 +123,20 @@ void draw() {
 
     image(opencv.image(), 0, opencv.image().height, opencv.image().width*3, opencv.image().height*3);
     stroke(200);
-    pushMatrix();
-    translate(0, imgHeight);
-    scale(3, 3);
-    translate(centroid.x, centroid.y);
+      pushMatrix();
+      translate(0, imgHeight);
+      scale(3, 3);
+      ellipse(0, 0, 30, 30);
+      translate(centroid.x, centroid.y);
+
+    float cx = modelX(centroid.x, centroid.y, centroid.z);
+    float cy = modelY(0, 0, 0);
+    float cz = modelZ(0, 0, 0);  
+    
+    println("cx " + cx);
+    println("cy " + cy);
+    println("cz " + cz);
+    
     strokeWeight(1);
     stroke(0, 255, 0);
     line(0, 0, axis1.x, axis1.y);
@@ -136,10 +144,18 @@ void draw() {
     line(0, 0, axis2.x, axis2.y);
     popMatrix();
 
+    println("centroid x " + centroid.x);
+    println("centroid y " + centroid.y);
+    
+    line(0,0, centroid.x, centroid.y + imgHeight);
+//    line(0,0, centroid.x+imgWidth, centroid.y + imgHeight*2);
+
+
+
     ///____ADD A COORDINATE AREA_____///
     pushMatrix();
     PVector centerDisplay = new PVector(opencv.image().width*3/2, opencv.image().height*5/2);
-    translate(centerDisplay.x,centerDisplay.y); 
+    translate(centerDisplay.x, centerDisplay.y); 
     ellipse(0, 0, 10, 10);
     stroke(0, 0, 255);
     strokeWeight(6);
@@ -181,20 +197,19 @@ void draw() {
       rectMode(CENTER);
       rect(0, 0, 10, 10);
       popMatrix();
-      
-//      PVector Debug = new PVector( (centroid.x+(opencv.image().width*3)/2)*.3,(centroid.y+(opencv.image().height*5)/2)*.3);
-//      println("debug X " + Debug.x);
-//      println("debug Y " + Debug.y);
     }
   }
 }
 
 
 void mousePressed() {
-      mousePos=new PVector( mouseX, mouseY);
+  mousePos=new PVector( mouseX, mouseY);
+  //      println("mouse x " + mousePos.x);
+  //      println("mouse y " + mousePos.y);
 
-//      println("mouse x " + mousePos.x);
-//      println("mouse y " + mousePos.y);
+  //      PVector Debug = new PVector( (centroid.x+(opencv.image().width*3)/2)*.3,(centroid.y+(opencv.image().height*5)/2)*.3);
+  //      println("debug X " + Debug.x);
+  //      println("debug Y " + Debug.y);
 
   PVector origin = new PVector(centroid.x, centroid.y, 0); 
   PVector trueOrigin = new PVector(0, 0, 0); 
