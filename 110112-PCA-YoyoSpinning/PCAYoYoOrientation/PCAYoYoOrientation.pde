@@ -26,14 +26,15 @@ float angle = 0;
 ArrayList paintArray;
 ArrayList vertexes;
 boolean showArt;
+PVector mousePos;
 
 void setup() {
   size(640, 480);
   opencv = new OpenCV(this);
   opencv.capture(imgWidth, imgHeight);
   centroid = new PVector();  
-  //Paint Details
 
+  //Paint Details
   paintArray = new ArrayList();
   showArt = false;
 }
@@ -65,7 +66,6 @@ Matrix toMatrix(PImage img) {
   centerY /= points.size();
   centroid.x = centerX;
   centroid.y = centerY;
-
   return result;
 }
 
@@ -79,6 +79,8 @@ void imageInGrid(PImage img, String message, int row, int col) {
 
 void draw() {
   background(125);
+  println("centroid x" + centroid.x);
+  println("centroid y" + centroid.y);
 
   opencv.read();
 
@@ -100,6 +102,8 @@ void draw() {
   imageInGrid(opencv.image(), "CONTRAST"+contrastK, 2, 3);
 
   Matrix m = toMatrix(opencv.image());
+  
+  
 
   if (m.getRowDimension() > 0) {
     pca = new PCA(m);
@@ -134,7 +138,8 @@ void draw() {
 
     ///____ADD A COORDINATE AREA_____///
     pushMatrix();
-    translate((opencv.image().width*3)/2, (opencv.image().height*5)/2);
+    PVector centerDisplay = new PVector(opencv.image().width*3/2, opencv.image().height*5/2);
+    translate(centerDisplay.x,centerDisplay.y); 
     ellipse(0, 0, 10, 10);
     stroke(0, 0, 255);
     strokeWeight(6);
@@ -142,6 +147,7 @@ void draw() {
     line(-coordVector.x, 0, coordVector.x, 0);
     line(0, coordVector.y, 0, -coordVector.y);
     popMatrix();
+
     //___CALC ANGLES____//
     float a = degrees(PVector.angleBetween(coordVector, axis1));
     //    println(int(a));
@@ -151,40 +157,50 @@ void draw() {
     text("PCA Object Axes:\nFirst two principle components centered at blob centroid", 10, height - 40);
     text("Axis 1 Green, Axis 2 Red", 10, height - 5);
 
+
     ///___________SPIN ART___________///////
     if (showArt==true) {
-      //      background(255);
       smooth();
       stroke(255);
       //      frameRate(5);
-       if (paintArray.size()>0) {
+
+      pushMatrix();
+      translate(0, imgHeight);
+      scale(3, 3);
+      translate(centroid.x, centroid.y);
+      scale(.3, .3);
+      if (paintArray.size()>0) {
         for (int i=0; i<paintArray.size(); i++) {
           Paint P=(Paint) paintArray.get(i);
           P.update();
           P.display();
         }
       }
-      pushMatrix();
 
-      //      translate((opencv.image().width*3)/2, (opencv.image().height*5)/2);
-      translate(0, imgHeight);
-      scale(3, 3);
-      translate(centroid.x, centroid.y);
-      scale(.3, .3);
-//      angle=degrees(frameCount);
       rotate(radians(angle));
       rectMode(CENTER);
       rect(0, 0, 10, 10);
       popMatrix();
+      
+//      PVector Debug = new PVector( (centroid.x+(opencv.image().width*3)/2)*.3,(centroid.y+(opencv.image().height*5)/2)*.3);
+//      println("debug X " + Debug.x);
+//      println("debug Y " + Debug.y);
     }
   }
 }
 
 
 void mousePressed() {
-  PVector mousePos=new PVector( mouseX-width/2, mouseY-height/2);
-  PVector origin = new PVector(0, 0, 0); 
-  float mouseDistance = abs(mousePos.dist(origin));
+      mousePos=new PVector( mouseX, mouseY);
+
+//      println("mouse x " + mousePos.x);
+//      println("mouse y " + mousePos.y);
+
+  PVector origin = new PVector(centroid.x, centroid.y, 0); 
+  PVector trueOrigin = new PVector(0, 0, 0); 
+
+  float mouseDistance = abs(mousePos.dist(trueOrigin));
+  println("Radius Distance" + mouseDistance);
   paintArray.add(
   new Paint(mouseDistance)
     );
@@ -217,8 +233,8 @@ void keyPressed() {
   if (key == 'p') {
     showArt=!showArt;
   }
-  
-    if (key == 'a') {
+
+  if (key == 'a') {
     angle+=keyIncrement;
     println(angle);
   }

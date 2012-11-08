@@ -13,8 +13,7 @@ class Paint {
 
     c1 = color (random(255), random(255), random(255), random(255));
     numVertices = 360;
-//    vertexDegree = 360 / numVertices;
-    vertexDegree =30;
+    vertexDegree = 360 / numVertices;
     startRadius = _radius;
     radius=startRadius;
     lineWeight=(10);
