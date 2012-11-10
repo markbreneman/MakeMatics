@@ -37,6 +37,10 @@ ArrayList paintArray;
 ArrayList vertexes;
 boolean showArt;
 PVector mousePos;
+int axis1Angle;
+int oldaxis1Angle;
+int axis2Angle;
+int oldaxis2Angle;
 
 ///____SECOND WINDOW______///
 secondApplet debugScreen;
@@ -101,11 +105,11 @@ void draw() {
   background(125);
 
   opencv.read();
-//  opencv.flip( OpenCV.FLIP_BOTH );
-  
-  debugScreen.image(opencv.image(),(debugWindowWidth-(imgHeight*aspectRatio))/2, 0,imgHeight*aspectRatio,imgHeight);
-  debugScreen.text("CAMERA INPUT",(debugWindowWidth-(imgHeight*aspectRatio))/2+10,imgHeight-10);
-  
+  //  opencv.flip( OpenCV.FLIP_BOTH );
+
+  debugScreen.image(opencv.image(), (debugWindowWidth-(imgHeight*aspectRatio))/2, 0, imgHeight*aspectRatio, imgHeight);
+  debugScreen.text("CAMERA INPUT", (debugWindowWidth-(imgHeight*aspectRatio))/2+10, imgHeight-10);
+
   opencv.convert(GRAY);
   debugScreen.imageInGrid(opencv.image(), "GRAY", 1, 0);
 
@@ -119,8 +123,8 @@ void draw() {
   debugScreen.imageInGrid(opencv.image(), "THRESHOLD "+ thresholdK, 1, 3);
 
   opencv.contrast(contrastK);
-  debugScreen.image(opencv.image(),(debugWindowWidth-(imgHeight*aspectRatio))/2,debugWindowHeight-imgHeight,imgHeight*aspectRatio,imgHeight);
-  debugScreen.text("CONTRAST",(debugWindowWidth-(imgHeight*aspectRatio))/2+10,debugWindowHeight-10);
+  debugScreen.image(opencv.image(), (debugWindowWidth-(imgHeight*aspectRatio))/2, debugWindowHeight-imgHeight, imgHeight*aspectRatio, imgHeight);
+  debugScreen.text("CONTRAST", (debugWindowWidth-(imgHeight*aspectRatio))/2+10, debugWindowHeight-10);
 
   Matrix m = toMatrix(opencv.image());
 
@@ -142,16 +146,16 @@ void draw() {
       axis1.mult((float)pca.getEigenvalue(0));
       axis2.mult((float)pca.getEigenvalue(1));
     }
-        
-    
+
+
     //DRAW THE LARGER FINAL TRACKED IMAGE
-    image(opencv.image(), 0,0,width,height);
+    image(opencv.image(), 0, 0, width, height);
     scaleX=width/opencv.image().width;
     scaleY=height/opencv.image().height;
     //DRAW THE AXIS OF ORIENTATION 
     stroke(200);
     pushMatrix();
-    scale(scaleX,scaleY);
+    scale(scaleX, scaleY);
     translate(centroid.x, centroid.y);
     strokeWeight(1);
     stroke(0, 255, 0);
@@ -166,59 +170,65 @@ void draw() {
     translate(centerDisplay.x, centerDisplay.y); 
     ellipse(0, 0, 10, 10);
     stroke(0, 0, 255);
-    strokeWeight(6);
+    strokeWeight(2);
     PVector coordVector= new PVector(0, 30);
+    ellipse(coordVector.x, coordVector.y, 10, 10);
     line(-coordVector.y, 0, coordVector.y, 0);
     line(0, coordVector.y, 0, -coordVector.y);
     popMatrix();
 
     //___CALC ANGLES____//
-    float a = degrees(PVector.angleBetween(coordVector, axis1));
-    //    println(int(a));
-    float b = degrees(PVector.angleBetween(coordVector, axis2));
-    
-    println("Angle Betwen Green Axis is " + a);
-    println("Angle Betwen Red Axis is " + b);
-    fill(255, 255, 255);
-    text("PCA Object Axes:\nFirst two principle components centered at blob centroid", 10, height - 40);
-    text("Axis 1 Green, Axis 2 Red", 10, height - 5);
+    axis1Angle = int(90+degrees(PVector.angleBetween(coordVector, axis1)));
+    axis2Angle = int(90+degrees(PVector.angleBetween(coordVector, axis2)));
+
+    //    if(centroid.x*scaleX<width/2){
+    //      a=a+180;
+    //    }
+    fill(255, 0, 0);
+    text("PCA Object Axes:\nFirst two principle components centered at blob centroid", 10, height - 60);
+    text("Axis 1 is Green and at an Angle of: "+axis1Angle+ "\nand Axis 2 is Red and at an Angle of: "+ axis2Angle, 10, height - 20);
+  }
+
+  if (frameCount%3==0) {
+    oldaxis1Angle=axis1Angle;
+    oldaxis2Angle=axis2Angle;
+  }
+
+  if (oldaxis1Angle != axis1Angle) {
+    int deltaAngle =abs(oldaxis1Angle-axis1Angle);
+  }
 
 
-    ///___________SPIN ART___________///////
-    if (showArt==true) {
-      smooth();
-      stroke(255);
-      //      frameRate(5);
-      pushMatrix();
-      scale(scaleX, scaleY);
-      translate(centroid.x, centroid.y);
-      scale(1/scaleX, 1/scaleY );
-      if (paintArray.size()>0) {
-        for (int i=0; i<paintArray.size(); i++) {
-          Paint P=(Paint) paintArray.get(i);
-          P.update();
-          P.display();
-        }
+  ///___________SPIN ART___________///////
+  if (showArt==true) {
+//    fill(90, 90, 90, 230);
+    fill(255);
+    rect(0, 0, width*2, height*2);
+    smooth();
+    stroke(255);
+    if (paintArray.size()>0) {
+      for (int i=0; i<paintArray.size(); i++) {
+        Paint P=(Paint) paintArray.get(i);
+         P.update();
+        P.display();
       }
-      rotate(radians(angle));
-      rectMode(CENTER);
-      rect(0, 0, 10, 10);
-      popMatrix();
     }
   }
+  rotate(radians(angle));
 }
 
 
 void mousePressed() {
   mousePos=new PVector( mouseX, mouseY);
-  
+
   PVector origintoCentroid = new PVector(centroid.x*scaleX, centroid.y*scaleY); 
   PVector origin = new PVector(0, 0, 0); 
 
   float mouseDistance = abs(mousePos.dist(origintoCentroid));
-  println("Radius Distance" + mouseDistance);
+  //  //  println("Radius Distance: " + mouseDistance);
+
   paintArray.add(
-  new Paint(mouseDistance)
+  new Paint(mouseDistance, origintoCentroid, axis1Angle, oldaxis1Angle)
     );
 }
 
@@ -275,13 +285,13 @@ public class secondApplet extends PApplet {
   public void draw() {
     smooth();
   }
-  
+
   public void imageInGrid(PImage img, String message, int row, int col) {
     int currX = col*img.width;
-  int currY = row*img.height;
-  image(img, currX, currY);
-  fill(255, 0, 0);
-  text(message, currX + 5, currY + imgHeight - 5);
+    int currY = row*img.height;
+    image(img, currX, currY);
+    fill(255, 0, 0);
+    text(message, currX + 5, currY + imgHeight - 5);
   }
 }
 
