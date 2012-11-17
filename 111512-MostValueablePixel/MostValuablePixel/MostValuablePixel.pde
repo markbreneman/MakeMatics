@@ -7,12 +7,13 @@ PImage img, energyImage, scoreImage;
 //////////////////////////////////////////////////// 
 ArrayList<Pixel> pixelObjectArray;
 Pixel pixel;
+int startingWidth;
+int startingHeight;
+ArrayList seamIndexes; 
 
 void setup() {
   img = loadImage("thecardplayers.jpg");
   size(img.width*2, img.height);  
-  //  size(img.width*3, img.height); 
-//  image(img, 0, 0);
   img.loadPixels();
 
   pixelObjectArray= new ArrayList<Pixel>();
@@ -23,19 +24,17 @@ void setup() {
       float redValue=red(img.pixels[loc]);
       float greenValue=green(img.pixels[loc]);
       float blueValue=blue(img.pixels[loc]);
+///_________________________________CREATE PIXEL OBJECT_________________________________///
       //  FROM THE CLASS Pixel(int _imageIndex, int _R, int _G, int _B) //
-      pixel = new Pixel(loc, redValue, greenValue, blueValue);
-      ///THIS ARRAY MAY NOT BE NEEDED
+      pixel = new Pixel(loc, redValue, greenValue, blueValue,i,j);
+///_________________________________ADD THE PIXEL OBJECT TO THIS ARRAY: MAY NOT BE NEEDED_________________________________///
       pixelObjectArray.add(pixel);
     }
   } 
-//  println("pixelObjectArray " + pixelObjectArray.size());
-//  println("pixelObjectArray Red " + pixelObjectArray.get(0).R);///GET THE RED VALUE OF PIXEL OBJECT1
-//  println("pixelObjectArray Green" + pixelObjectArray.get(0).G);///GET THE GREEN VALUE OF PIXEL OBJECT1
-//  println("pixelObjectArray Blue" + pixelObjectArray.get(0).B);///GET THE BLUE VALUE OF PIXEL OBJECT1
-
   println("Image Width: " + img.width + " Image Height: " + img.height);
-
+  startingWidth=img.width;
+  startingHeight=img.height;
+  
   carver = new SeamCarving(this, img);
   seam = carver.findMinSeam();
 
@@ -44,44 +43,57 @@ void setup() {
 
 //  println("calculating score image");
   scoreImage = carver.getScoreImage();
-
-  //  image(scoreImage, img.width, 0);
+  image(scoreImage, startingWidth, 0);
+///_________________________________CREATE AN ARRAY LIST TO HOLD SEAM INDEXES_________________________________///
+seamIndexes = new ArrayList();
 }
 
 boolean newSeam = false;
 
+
 void draw() {
-  
-  //  // draw a white "background"
-  //  // behind the final result (since it shrinks)
-//  fill(255, 0, 0);
-//  noStroke();
-//  rect(energyImage.width*2, 0, energyImage.width, img.height);
-  //
-  //  //DRAW THE ENERGY IMAGE
+
+  //DRAW THE ENERGY IMAGE
   //  image(energyImage, 0, 0);
-  //
-  //  //DRAW THE FINAL IMAGE
-//  image(img, 0, 0);
+  
+  // draw a black rectangle "background"
+  // behind the image (since it shrinks
+  fill(0,0,0);
+  noStroke();
+  rect(0, 0, width/2,height);
+  
+  //DRAW THE FINAL IMAGE
+  image(img, 0, 0);
   //
   if (newSeam) {
-     // draw a white "background"
-     // behind the energy image (since it also shrinks)
-    fill(255);
-    noStroke();
-//    rect(0, 0, energyImage.width, img.height);
-//    translate(img.width,0);
+    pushMatrix();
+    translate(startingWidth,0);
+     // draw a black rectangle "background"
+     // behind the image (since it shrinks
+     rect(0, 0, width/2,height);
     // REDRAW THE SCORE IMAGE
     image(scoreImage, 0, 0 );
   //
     // Draw the next seam to remove
     stroke(255, 0, 0);
+    ArrayList seamImageIndex = new ArrayList();
     for (PVector p : seam) {
       point(p.x, p.y);
+///_________________________________GET THE INDEX VALUE OF THE SEAM LOCATION AND STORE IT TO AN SEAM INDEX ARRAY_________________________________///
+      int originalIndex =int(p.x+p.y*startingWidth);
+      seamImageIndex.add(pixelObjectArray.get(originalIndex).imageIndex);
     }
     popMatrix();
     newSeam = false;
+///_________________________________ADD THE SEAM INDEX ARRAY TO THE OVERALL SEAM ARRAY_________________________________///
+    seamIndexes.add(seamImageIndex);
+    println(seamIndexes.size());
   }
+  ///STROKE THE NORMAL IMAGE WITH THE SEAM
+  stroke(255, 0, 0);
+    for (PVector p : seam) {
+      point(p.x, p.y);
+    }
 }
 
 void keyPressed() {
@@ -96,7 +108,7 @@ void keyPressed() {
   carver.setImage(img);
   //Get the Seam for the next one to be removed.
   seam = carver.findMinSeam();
-  //  newSeam = true;
+  newSeam = true;
 
   println("calculating score image");
   scoreImage = carver.getScoreImage();
