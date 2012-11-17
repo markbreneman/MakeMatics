@@ -74,8 +74,8 @@ class Paint {
 
 
   void display() {
-    println(axis1Angle);
-//    rotate(radians(angle));
+//    println(axis1Angle);
+    rotate(radians(angle));
 //    rotate(radians(axis1Angle));
     ///____OUTERRING____////
     noFill();

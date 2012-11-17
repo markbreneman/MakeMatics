@@ -215,11 +215,8 @@ void draw() {
     }
   }
   rotate(radians(angle));
-}
-
-
-void mousePressed() {
-  mousePos=new PVector( mouseX, mouseY);
+  if(mousePressed){
+     mousePos=new PVector( mouseX, mouseY);
 
   PVector origintoCentroid = new PVector(centroid.x*scaleX, centroid.y*scaleY); 
   PVector origin = new PVector(0, 0, 0); 
@@ -229,7 +226,23 @@ void mousePressed() {
 
   paintArray.add(
   new Paint(mouseDistance, origintoCentroid, axis1Angle, oldaxis1Angle)
-    );
+    ); 
+  }
+}
+
+
+void mousePressed() {
+//  mousePos=new PVector( mouseX, mouseY);
+//
+//  PVector origintoCentroid = new PVector(centroid.x*scaleX, centroid.y*scaleY); 
+//  PVector origin = new PVector(0, 0, 0); 
+//
+//  float mouseDistance = abs(mousePos.dist(origintoCentroid));
+//  //  //  println("Radius Distance: " + mouseDistance);
+//
+//  paintArray.add(
+//  new Paint(mouseDistance, origintoCentroid, axis1Angle, oldaxis1Angle)
+//    );
 }
 
 void keyPressed() {
