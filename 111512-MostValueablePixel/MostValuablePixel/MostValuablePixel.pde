@@ -12,7 +12,7 @@ void setup() {
   img = loadImage("thecardplayers.jpg");
   size(img.width*2, img.height);  
   //  size(img.width*3, img.height); 
-  image(img, 0, 0);
+//  image(img, 0, 0);
   img.loadPixels();
 
   pixelObjectArray= new ArrayList<Pixel>();
@@ -31,8 +31,8 @@ void setup() {
   } 
 //  println("pixelObjectArray " + pixelObjectArray.size());
 //  println("pixelObjectArray Red " + pixelObjectArray.get(0).R);///GET THE RED VALUE OF PIXEL OBJECT1
-//  println("pixelObjectArray Green" + pixelObjectArray.get(0).G);///GET THE RED VALUE OF PIXEL OBJECT1
-//  println("pixelObjectArray Blue" + pixelObjectArray.get(0).B);///GET THE RED VALUE OF PIXEL OBJECT1
+//  println("pixelObjectArray Green" + pixelObjectArray.get(0).G);///GET THE GREEN VALUE OF PIXEL OBJECT1
+//  println("pixelObjectArray Blue" + pixelObjectArray.get(0).B);///GET THE BLUE VALUE OF PIXEL OBJECT1
 
   println("Image Width: " + img.width + " Image Height: " + img.height);
 
@@ -48,42 +48,40 @@ void setup() {
   //  image(scoreImage, img.width, 0);
 }
 
-//boolean newSeam = false;
+boolean newSeam = false;
 
 void draw() {
+  
   //  // draw a white "background"
   //  // behind the final result (since it shrinks)
-  //  fill(255, 0, 0);
-  //  noStroke();
-  //  rect(energyImage.width*2, 0, energyImage.width, img.height);
+//  fill(255, 0, 0);
+//  noStroke();
+//  rect(energyImage.width*2, 0, energyImage.width, img.height);
   //
   //  //DRAW THE ENERGY IMAGE
   //  image(energyImage, 0, 0);
   //
   //  //DRAW THE FINAL IMAGE
-  //  image(img, energyImage.width*2, 0);
+//  image(img, 0, 0);
   //
-  //  if (newSeam) {
-  //    pushMatrix();
-  //    translate(energyImage.width, 0);
+  if (newSeam) {
+     // draw a white "background"
+     // behind the energy image (since it also shrinks)
+    fill(255);
+    noStroke();
+//    rect(0, 0, energyImage.width, img.height);
+//    translate(img.width,0);
+    // REDRAW THE SCORE IMAGE
+    image(scoreImage, 0, 0 );
   //
-  //    // draw a white "background"
-  //    // behind the energy image (since it also shrinks)
-  //    fill(255);
-  //    noStroke();
-  //    rect(0, 0, energyImage.width, img.height);
-  //
-  //    // REDRAW THE SCORE IMAGE
-  //    image(scoreImage, 0, 0 );
-  //
-  //    // Draw the next seam to remove
-  //    stroke(255, 0, 0);
-  //    for (PVector p : seam) {
-  //      point(p.x, p.y);
-  //    }
-  //    popMatrix();
-  //    newSeam = false;
-  //  }
+    // Draw the next seam to remove
+    stroke(255, 0, 0);
+    for (PVector p : seam) {
+      point(p.x, p.y);
+    }
+    popMatrix();
+    newSeam = false;
+  }
 }
 
 void keyPressed() {
