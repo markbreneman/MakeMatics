@@ -16,7 +16,8 @@ ArrayList seamIndexes;
 boolean seamFO = false;
 
 void setup() {
-  img = loadImage("thecardplayers.jpg");
+//  img = loadImage("thecardplayers.jpg");
+  img = loadImage("thecardplayers70_60.jpg");
   size(img.width*2, img.height);  
   img.loadPixels();
 
@@ -151,7 +152,7 @@ void draw() {
 }
 void keyPressed() {
 
-  if (key == 'n' && img.width>3 && fired==false) {
+  if (key == 'n' && img.width>1 && fired==false) {
     //Load all the pixels in the Image Array
     img.loadPixels();
     //Pass the Image to the Carver to remove the column
@@ -168,7 +169,7 @@ void keyPressed() {
 
     //    println("calculating score image");
     scoreImage = carver.getScoreImage();
-    //  println(seam);
+    
   }
 
   if (key == 's') {
@@ -184,6 +185,28 @@ void keyPressed() {
     println("number of seams = " + seamIndexes.size());
     println("number of pixelObjects = " + pixelObjectArray.size());
     println("number of pixelObjects Orig = " + pixelObjectArrayOrig.size());
+  }
+}
+
+void newSeam(){
+ if (img.width>1 && fired==false) {
+    //Load all the pixels in the Image Array
+    img.loadPixels();
+    //Pass the Image to the Carver to remove the column
+    img = carver.removeColumn();
+    //Update the Pixels Array
+    img.updatePixels();
+
+    //Pass the updated image pixels array back to the carver
+    carver.setImage(img);
+    //Get the Seam for the next one to be removed.
+    seam = carver.findMinSeam();
+    newSeam = true;
+    fired = true;
+
+    //    println("calculating score image");
+    scoreImage = carver.getScoreImage();
+    
   }
 }
 
