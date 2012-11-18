@@ -116,12 +116,12 @@ void draw() {
          Pixel sample = pixelObjectArray.get(k);
         stroke(255, 0, 0);
         strokeWeight(2);
-         beginShape();
+//         beginShape();
          if (sample.imageIndex == tmpIndexSeam){
 //         ellipse(sample.startX,sample.startY,10,10);
           point(sample.startX,sample.startY);
          }      
-         endShape();
+//         endShape();
         }
       }
     }
