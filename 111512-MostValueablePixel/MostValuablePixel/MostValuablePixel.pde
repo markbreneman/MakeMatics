@@ -10,6 +10,7 @@ Pixel pixel;
 int startingWidth;
 int startingHeight;
 ArrayList seamIndexes; 
+boolean seamFO = false;
 
 void setup() {
   img = loadImage("thecardplayers.jpg");
@@ -73,7 +74,7 @@ void draw() {
      rect(0, 0, width/2,height);
     // REDRAW THE SCORE IMAGE
     image(scoreImage, 0, 0 );
-  //
+
     // Draw the next seam to remove
     stroke(255, 0, 0);
     ArrayList seamImageIndex = new ArrayList();
@@ -81,7 +82,9 @@ void draw() {
       point(p.x, p.y);
 ///_________________________________GET THE INDEX VALUE OF THE SEAM LOCATION AND STORE IT TO AN SEAM INDEX ARRAY_________________________________///
       int originalIndex =int(p.x+p.y*startingWidth);
-      seamImageIndex.add(pixelObjectArray.get(originalIndex).imageIndex);
+      println(originalIndex);
+      int indexAtSeam= pixelObjectArray.get(originalIndex).imageIndex;
+      seamImageIndex.add(indexAtSeam);
     }
     popMatrix();
     newSeam = false;
@@ -94,16 +97,40 @@ void draw() {
     for (PVector p : seam) {
       point(p.x, p.y);
     }
+   
+   if(seamFO==true){
+   for( int i=0; i<seamIndexes.size(); i++){
+//        println("Seam "+i);
+//        println( seamIndexes.get(i)); 
+        ArrayList<Integer> tmpSeam =(ArrayList)seamIndexes.get(i);
+//        println(tmpSeam.get(i));
+         for(int j=0; j<tmpSeam.size(); j++){
+//           tmpSeam.get(j);
+//          println(pixelObjectArray.get(tmpSeam.get(j)).startX);
+         ellipse(pixelObjectArray.get(tmpSeam.get(j)).startX,pixelObjectArray.get(tmpSeam.get(j)).startY,10,10); 
+            
+         }
+        
+//       int tx=pixelObjectArray.get(seamIndexes.get(i)).startX;
+//       int ty=pixelObjectArray.get(seamIndexes.get(i)).startY;
+//       ellipse(tx,ty,10,10);
+   }
+//   seamFO = false;
+   } 
+    
+    
 }
 
 void keyPressed() {
+  
+  if(key == 'n'){
   //Load all the pixels in the Image Array
   img.loadPixels();
   //Pass the Image to the Carver to remove the column
   img = carver.removeColumn();
   //Update the Pixels Array
   img.updatePixels();
-
+  
   //Pass the updated image pixels array back to the carver
   carver.setImage(img);
   //Get the Seam for the next one to be removed.
@@ -113,5 +140,10 @@ void keyPressed() {
   println("calculating score image");
   scoreImage = carver.getScoreImage();
   //  println(seam);
+  }
+  
+  if(key == 's'){
+    seamFO=true;
+  }
 }
 
