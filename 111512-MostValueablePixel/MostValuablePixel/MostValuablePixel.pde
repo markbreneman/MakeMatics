@@ -18,20 +18,21 @@ void setup() {
   img.loadPixels();
 
   pixelObjectArray= new ArrayList<Pixel>();
-  for (int i = 0; i<img.width; i++)
-  {
-    for (int j = 0; j < img.height; j++) {
-      int loc = i + j*img.width;//GET THE PIXEL INDEX
-      float redValue=red(img.pixels[loc]);
-      float greenValue=green(img.pixels[loc]);
-      float blueValue=blue(img.pixels[loc]);
+   for (int i = 0; i<img.width; i++) {
+      for (int j = 0; j < img.height; j++) {
+        int index = i + j*img.width;//GET THE PIXEL INDEX and THEN UPDATE THE PIXELObjects
+      float redValue=red(img.pixels[index]);
+      float greenValue=green(img.pixels[index]);
+      float blueValue=blue(img.pixels[index]);
       ///_________________________________CREATE PIXEL OBJECT_________________________________///
       //  FROM THE CLASS Pixel(int _imageIndex, int _R, int _G, int _B) //
-      pixel = new Pixel(loc, redValue, greenValue, blueValue, i, j);
+      PVector startPos= new PVector(i, j);
+      pixel = new Pixel(startPos, index, redValue, greenValue, blueValue);
       ///_________________________________ADD THE PIXEL OBJECT TO THIS ARRAY: MAY NOT BE NEEDED_________________________________///
       pixelObjectArray.add(pixel);
     }
   } 
+  println(pixelObjectArray.size());
   println("Image Width: " + img.width + " Image Height: " + img.height);
   startingWidth=img.width;
   startingHeight=img.height;
@@ -81,15 +82,12 @@ void draw() {
     for (PVector p : seam) {
       point(p.x, p.y);
       ///_________________________________GET THE INDEX VALUE OF THE SEAM LOCATION AND STORE IT TO AN SEAM INDEX ARRAY_________________________________///
-      //      int originalIndex =int(p.x+p.y*startingWidth);
-      //      println(originalIndex);
-      //      int indexAtSeam= pixelObjectArray.get(originalIndex).imageIndex;
       for (int j=0; j<pixelObjectArray.size(); j++) {
         Pixel pix = pixelObjectArray.get(j);
-        if (pix.startX==p.x && pix.startY==p.y) {
-          seamImageIndex.add(pix.imageIndex);
-//          println("pixel " + pix.startX+" "+ pix.startY);
-//          println("pixel image Index " + pix.imageIndex);
+        if (pix.currentLocation.x==p.x && pix.currentLocation.y==p.y) {
+          seamImageIndex.add(pix);
+          //          println(j);//Should Print 313 numbers and does!
+          pixelObjectArray.remove(j);
         }
       }
     }
@@ -97,7 +95,26 @@ void draw() {
     newSeam = false;
     ///_________________________________ADD THE SEAM INDEX ARRAY TO THE OVERALL SEAM ARRAY_________________________________///
     seamIndexes.add(seamImageIndex);
-//    println("number of seams = " + seamIndexes.size());
+    
+    ArrayList<Integer> updatingIndexes=new ArrayList();
+    ArrayList<PVector> updatingLocations=new ArrayList();
+    for (int i = 0; i<img.width; i++) {
+      for (int j = 0; j < img.height; j++) {
+        //CREATE THE PIXEL'S new temp INDEX and add it to the updating Indexes Array
+        int updatedIndex = i + j*img.width;
+        PVector updatedLocations = new PVector(i,j);
+        updatingIndexes.add(updatedIndex);
+        updatingLocations.add(updatedLocations);
+        }
+      }
+    //update the pixel Objects  
+    for(int k=0; k<pixelObjectArray.size(); k++){  
+          Pixel pixeltoUpdate = pixelObjectArray.get(k);
+          pixeltoUpdate.update(updatingLocations.get(k),updatingIndexes.get(k));
+    }
+//  println("updating indexes Size" + updatingIndexes.size());
+//  println("updating Locations Size " + updatingLocations.size());
+//  println("updated pixelObjectArray " + pixelObjectArray.size());
   }
   ///STROKE THE NORMAL IMAGE WITH THE SEAM
   stroke(0, 0, 255);
@@ -106,27 +123,14 @@ void draw() {
   }
 
   if (seamFO==true) {
-    for ( int i=0; i<seamIndexes.size(); i++) {
-      image(img, 0, 0);
-      println("There are: " + (i+1) + " seams"); 
-      ArrayList<Integer> tmpSeam =(ArrayList)seamIndexes.get(i);
-      //        println(tmpSeam.get(i));
+    for ( int i=0; i<seamIndexes.size(); i++) { 
+      ArrayList<Pixel> tmpSeam =(ArrayList)seamIndexes.get(i); //GET THE SEAM FROM THE ARRRAY OF SEAMS
       for (int j=0; j<tmpSeam.size(); j++) {
-        int tmpIndexSeam = tmpSeam.get(j); /// This prints out the index of the PixelObject
-        for(int k=0; k<pixelObjectArray.size(); k++){
-         Pixel sample = pixelObjectArray.get(k);
+        PVector pixLoc = tmpSeam.get(j).startLocation;
         stroke(255, 0, 0);
-        strokeWeight(2);
-//         beginShape();
-         if (sample.imageIndex == tmpIndexSeam){
-//         ellipse(sample.startX,sample.startY,10,10);
-          point(sample.startX,sample.startY);
-         }      
-//         endShape();
-        }
+        point(pixLoc.x, pixLoc.y);
       }
     }
-//      seamFO = false;
   }
 }
 void keyPressed() {
@@ -145,13 +149,23 @@ void keyPressed() {
     seam = carver.findMinSeam();
     newSeam = true;
 
-//    println("calculating score image");
+    //    println("calculating score image");
     scoreImage = carver.getScoreImage();
     //  println(seam);
   }
 
   if (key == 's') {
     seamFO=true;
+  }
+  
+  if (key == 'h') {
+    seamFO = false;
+  }
+  
+   
+  if (key == 'i') {
+    println("number of seams = " + seamIndexes.size());
+    println("number of pixelObjects = " + pixelObjectArray.size());
   }
 }
 
