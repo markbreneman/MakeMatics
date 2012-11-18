@@ -107,7 +107,8 @@ void draw() {
 
   if (seamFO==true) {
     for ( int i=0; i<seamIndexes.size(); i++) {
-      println("Seam "+i); 
+      image(img, 0, 0);
+      println("There are: " + (i+1) + " seams"); 
       ArrayList<Integer> tmpSeam =(ArrayList)seamIndexes.get(i);
       //        println(tmpSeam.get(i));
       for (int j=0; j<tmpSeam.size(); j++) {
@@ -130,7 +131,7 @@ void draw() {
 }
 void keyPressed() {
 
-  if (key == 'n') {
+  if (key == 'n' && img.width>3) {
     //Load all the pixels in the Image Array
     img.loadPixels();
     //Pass the Image to the Carver to remove the column
