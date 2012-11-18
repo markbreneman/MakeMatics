@@ -125,7 +125,7 @@ void draw() {
         }
       }
     }
-      seamFO = false;
+//      seamFO = false;
   }
 }
 void keyPressed() {
