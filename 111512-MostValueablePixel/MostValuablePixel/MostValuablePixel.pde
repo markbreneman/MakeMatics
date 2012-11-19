@@ -12,20 +12,21 @@ Pixel pixelOriginal;
 int startingWidth;
 int startingHeight;
 
-ArrayList seamIndexes; 
+ArrayList seamIndexesOrig;
+ArrayList seamIndexes;
 boolean seamFO = false;
 
 void setup() {
-//  img = loadImage("thecardplayers.jpg");
-  img = loadImage("thecardplayers70_60.jpg");
+    img = loadImage("thecardplayers.jpg");
+//  img = loadImage("thecardplayers70_60.jpg");
   size(img.width*2, img.height);  
   img.loadPixels();
 
   pixelObjectArray= new ArrayList<Pixel>();
   pixelObjectArrayOrig= new ArrayList<Pixel>();
-   for (int i = 0; i<img.width; i++) {
-      for (int j = 0; j < img.height; j++) {
-        int index = i + j*img.width;//GET THE PIXEL INDEX and THEN UPDATE THE PIXELObjects
+  for (int i = 0; i<img.width; i++) {
+    for (int j = 0; j < img.height; j++) {
+      int index = i + j*img.width;//GET THE PIXEL INDEX and THEN UPDATE THE PIXELObjects
       float redValue=red(img.pixels[index]);
       float greenValue=green(img.pixels[index]);
       float blueValue=blue(img.pixels[index]);
@@ -55,6 +56,7 @@ void setup() {
   image(scoreImage, startingWidth, 0);
   ///_________________________________CREATE AN ARRAY LIST TO HOLD SEAM INDEXES_________________________________///
   seamIndexes = new ArrayList();
+  seamIndexesOrig=new ArrayList();
 }
 
 boolean newSeam = false;
@@ -87,52 +89,41 @@ void draw() {
     // Draw the next seam to remove
     stroke(0, 0, 255);
     ArrayList seamImageIndex = new ArrayList();
+    ArrayList seamImageIndexOrig = new ArrayList();
     for (PVector p : seam) {
       point(p.x, p.y);
+      ///_________________________________RELATIVE TO ORIGINAL________________________________///
       ///_________________________________GET THE INDEX VALUE OF THE SEAM LOCATION AND STORE IT TO AN SEAM INDEX ARRAY_________________________________///
       for (int j=0; j<pixelObjectArrayOrig.size(); j++) {
         Pixel pix = pixelObjectArrayOrig.get(j);
         if (pix.currentLocation.x==p.x && pix.currentLocation.y==p.y) {
-          seamImageIndex.add(pix);
-          //          println(j);//Should Print 313 numbers and does!
+          seamImageIndexOrig.add(pix);
+//          println(j);//Should Print imageheight amount numbers and does!
         }
       }
+      ///_________________________________RELATIVE TO CURRENT___________________________________________________///
+      ///_________________________________GET THE INDEX VALUE OF THE SEAM LOCATION AND STORE IT TO AN SEAM INDEX ARRAY_________________________________///
       for (int k=0; k<pixelObjectArray.size(); k++) {
         Pixel pix = pixelObjectArray.get(k);
+//        if(pix.currentLocation.x>p.x){pix.currentLocation.x=pix.currentLocation.x-1;}
+        
         if (pix.currentLocation.x==p.x && pix.currentLocation.y==p.y) {
-          pixelObjectArray.remove(k);
+          seamImageIndex.add(pix);
+//          ellipse(pix.currentLocation.x,pix.currentLocation.y,5,5);
+          pixelObjectArray.remove(pix);
         }
+       
+       
       }
     }
     popMatrix();
     newSeam = false;
     fired = false;
     
-    ///_________________________________ADD THE SEAM INDEX ARRAY TO THE OVERALL SEAM ARRAY_________________________________///
+    ///_________________________________ADD THE SEAMS ARRAYLISTS TO THEIR RESPECTIVE ARRAYS________________________________///
+    seamIndexesOrig.add(seamImageIndexOrig);
     seamIndexes.add(seamImageIndex);
-    //////________________UPDATE THE PIXEL OBJECTS ARRAY LIST TO REFLECT OBJECT REMOVED_______________________//////
-    if(fired==false){
-    ArrayList<Integer> updatingIndexes=new ArrayList();
-    ArrayList<PVector> updatingLocations=new ArrayList();
-    for (int i = 0; i<img.width; i++) {
-      for (int j = 0; j < img.height; j++) {
-        //CREATE THE PIXEL'S new temp INDEX and add it to the updating Indexes Array
-        int updatedIndex = i + j*img.width;
-        PVector updatedLocations = new PVector(i,j);
-        updatingIndexes.add(updatedIndex);
-        updatingLocations.add(updatedLocations);
-        }
-      }
-    //update the pixel Objects  
-    for(int k=0; k<pixelObjectArray.size(); k++){  
-          Pixel pixeltoUpdate = pixelObjectArray.get(k);
-          pixeltoUpdate.update(updatingLocations.get(k),updatingIndexes.get(k));
-          
-    }
-  println("updating indexes Size" + updatingIndexes.size());
-  println("updating Locations Size " + updatingLocations.size());
-  println("updated pixelObjectArray " + pixelObjectArray.size());
-  }}
+  }
   ///STROKE THE NORMAL IMAGE WITH THE SEAM
   stroke(0, 0, 255);
   for (PVector p : seam) {
@@ -143,7 +134,7 @@ void draw() {
     for ( int i=0; i<seamIndexes.size(); i++) { 
       ArrayList<Pixel> tmpSeam =(ArrayList)seamIndexes.get(i); //GET THE SEAM FROM THE ARRRAY OF SEAMS
       for (int j=0; j<tmpSeam.size(); j++) {
-        PVector pixLoc = tmpSeam.get(j).startLocation;
+        PVector pixLoc = tmpSeam.get(j).currentLocation;
         stroke(255, 0, 0);
         point(pixLoc.x, pixLoc.y);
       }
@@ -169,27 +160,35 @@ void keyPressed() {
 
     //    println("calculating score image");
     scoreImage = carver.getScoreImage();
-    
   }
 
   if (key == 's') {
     seamFO=true;
   }
-  
+
   if (key == 'h') {
     seamFO = false;
   }
-  
-   
+
+
   if (key == 'i') {
     println("number of seams = " + seamIndexes.size());
     println("number of pixelObjects = " + pixelObjectArray.size());
     println("number of pixelObjects Orig = " + pixelObjectArrayOrig.size());
+    println("number of Seams Index = " + seamIndexes.size());
+    println("number of Seams Index Orig = " + seamIndexesOrig.size());
+
+//    ArrayList tmpArray = (ArrayList) seamIndexes.get(2);
+//    for (int i=0; i<tmpArray.size(); i++){
+//      Pixel testPix =(Pixel) tmpArray.get(i);
+//      println(testPix.currentLocation);
+//    }
+    
   }
 }
 
-void newSeam(){
- if (img.width>1 && fired==false) {
+void newSeam() {
+  if (img.width>1 && fired==false) {
     //Load all the pixels in the Image Array
     img.loadPixels();
     //Pass the Image to the Carver to remove the column
@@ -206,7 +205,6 @@ void newSeam(){
 
     //    println("calculating score image");
     scoreImage = carver.getScoreImage();
-    
   }
 }
 
