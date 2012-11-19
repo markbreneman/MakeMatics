@@ -24,6 +24,7 @@ void setup() {
 
   pixelObjectArray= new ArrayList<Pixel>();
   pixelObjectArrayOrig= new ArrayList<Pixel>();
+  
   for (int i = 0; i<img.width; i++) {
     for (int j = 0; j < img.height; j++) {
       int index = i + j*img.width;//GET THE PIXEL INDEX and THEN UPDATE THE PIXELObjects
@@ -40,7 +41,30 @@ void setup() {
       pixelObjectArrayOrig.add(pixelOriginal);
     }
   } 
-  println(pixelObjectArray.size());
+  
+  List Row = new ArrayList();
+  ArrayList RowRow = new ArrayList();
+  int j=1;
+  for (int i=0; i<img.height*img.width; i+=img.width){  
+  Row =pixelObjectArray.subList(i,j*img.width);
+  RowRow.add(Row);
+  j++;
+  }
+  println(RowRow.size());
+  
+
+//  for(int i=0; i<pixelObjectArray.size(); i++){
+//    Pixel tmpPix = pixelObjectArray.get(i);
+//    Row.add(tmpPix);
+//    if(i==i*img.width){
+//    RowRow.add(Row);
+//    } 
+//  }
+  
+  
+//  println(RowRow.size());
+//  println(RowRow.get(0));
+  
   println("Image Width: " + img.width + " Image Height: " + img.height);
   startingWidth=img.width;
   startingHeight=img.height;
@@ -177,6 +201,7 @@ void keyPressed() {
     println("number of pixelObjects Orig = " + pixelObjectArrayOrig.size());
     println("number of Seams Index = " + seamIndexes.size());
     println("number of Seams Index Orig = " + seamIndexesOrig.size());
+
 
 //    ArrayList tmpArray = (ArrayList) seamIndexes.get(2);
 //    for (int i=0; i<tmpArray.size(); i++){
