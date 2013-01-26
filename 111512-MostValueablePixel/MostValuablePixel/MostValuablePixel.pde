@@ -4,9 +4,10 @@ SeamCarving carver;
 ArrayList<PVector> seam;
 
 PImage img, energyImage, scoreImage;
-//////////////////////////////////////////////////// 
+////////////////////////////////////////////////////
 ArrayList<Pixel> pixelObjectArray;
 ArrayList<Pixel> pixelObjectArrayOrig;
+ArrayList pixelObjectsByRow; 
 Pixel pixel;
 Pixel pixelOriginal;
 int startingWidth;
@@ -15,12 +16,15 @@ int startingHeight;
 ArrayList seamIndexesOrig;
 ArrayList seamIndexes;
 boolean seamFO = false;
+PrintWriter output;
 
 void setup() {
-    img = loadImage("thecardplayers.jpg");
+  output = createWriter("data/data.txt");  
+  img = loadImage("thecardplayers.jpg");
 //  img = loadImage("thecardplayers70_60.jpg");
   size(img.width*2, img.height);  
   img.loadPixels();
+  
 
   pixelObjectArray= new ArrayList<Pixel>();
   pixelObjectArrayOrig= new ArrayList<Pixel>();
@@ -33,7 +37,7 @@ void setup() {
       float blueValue=blue(img.pixels[index]);
       ///_________________________________CREATE PIXEL OBJECT_________________________________///
       //  FROM THE CLASS Pixel(int _imageIndex, int _R, int _G, int _B) //
-      PVector startPos= new PVector(i, j);
+      PVector startPos= new PVector(j,i);
       pixel = new Pixel(startPos, index, redValue, greenValue, blueValue);
       pixelOriginal = new Pixel(startPos, index, redValue, greenValue, blueValue);
       ///_________________________________ADD THE PIXEL OBJECT TO THIS ARRAY: MAY NOT BE NEEDED_________________________________///
@@ -41,30 +45,16 @@ void setup() {
       pixelObjectArrayOrig.add(pixelOriginal);
     }
   } 
-  
-  List Row = new ArrayList();
-  ArrayList RowRow = new ArrayList();
+  /////_______BREAK PIXEL OBJECT UP INTO ARRAY___________/////////// 
+  ArrayList Row = new ArrayList();
+  pixelObjectsByRow = new ArrayList();
   int j=1;
   for (int i=0; i<img.height*img.width; i+=img.width){  
-  Row =pixelObjectArray.subList(i,j*img.width);
-  RowRow.add(Row);
-  j++;
+    Row = new ArrayList((List)pixelObjectArray.subList(i,j*img.width));
+    pixelObjectsByRow.add(Row);
+    j++;
   }
-  println(RowRow.size());
-  
 
-//  for(int i=0; i<pixelObjectArray.size(); i++){
-//    Pixel tmpPix = pixelObjectArray.get(i);
-//    Row.add(tmpPix);
-//    if(i==i*img.width){
-//    RowRow.add(Row);
-//    } 
-//  }
-  
-  
-//  println(RowRow.size());
-//  println(RowRow.get(0));
-  
   println("Image Width: " + img.width + " Image Height: " + img.height);
   startingWidth=img.width;
   startingHeight=img.height;
@@ -89,7 +79,7 @@ boolean fired = false;
 
 void draw() {
 
-  //DRAW THE ENERGY IMAGE
+//  //DRAW THE ENERGY IMAGE
   //  image(energyImage, 0, 0);
 
   // draw a black rectangle "background"
@@ -100,6 +90,8 @@ void draw() {
 
   //DRAW THE FINAL IMAGE
   image(img, 0, 0);
+  int testing=0;
+  
   //
   if (newSeam) {
     pushMatrix();
@@ -122,31 +114,44 @@ void draw() {
         Pixel pix = pixelObjectArrayOrig.get(j);
         if (pix.currentLocation.x==p.x && pix.currentLocation.y==p.y) {
           seamImageIndexOrig.add(pix);
-//          println(j);//Should Print imageheight amount numbers and does!
+          pix.seamIndex=seamIndexes.size();
+          output.println(pix.startLocation.x +","+pix.startLocation.y +","+ pix.currentLocation.x +","+ pix.currentLocation.y +","+ seamIndexes.size() +","+ pix.imageIndex +","+ pix.R +","+ pix.G +","+ pix.B);
         }
       }
-      ///_________________________________RELATIVE TO CURRENT___________________________________________________///
-      ///_________________________________GET THE INDEX VALUE OF THE SEAM LOCATION AND STORE IT TO AN SEAM INDEX ARRAY_________________________________///
-      for (int k=0; k<pixelObjectArray.size(); k++) {
-        Pixel pix = pixelObjectArray.get(k);
-//        if(pix.currentLocation.x>p.x){pix.currentLocation.x=pix.currentLocation.x-1;}
-        
-        if (pix.currentLocation.x==p.x && pix.currentLocation.y==p.y) {
-          seamImageIndex.add(pix);
-//          ellipse(pix.currentLocation.x,pix.currentLocation.y,5,5);
-          pixelObjectArray.remove(pix);
-        }
-       
-       
-      }
+//      ///_________________________________RELATIVE TO CURRENT___________________________________________________///
+//      ///_________________________________GET THE INDEX VALUE OF THE SEAM LOCATION AND STORE IT TO AN SEAM INDEX ARRAY_________________________________//
+
+//        println(img.width);
+//        println(pixelObjectsByRow.size());
+        for(int k=0; k<pixelObjectsByRow.size();k++){
+          for(int l=0; l<img.width;l++){  
+                         
+          ArrayList tmpRow = (ArrayList)pixelObjectsByRow.get(k);
+          Pixel tmpPixel=((Pixel)((ArrayList)pixelObjectsByRow.get(k)).get(l));  
+          
+//          if(.currentLocation.x>p.x && tmpPixel.currentLocation.y==p.y){
+//          tmpPixel.currentLocation.x=tmpPixel.currentLocation.x-1;
+//          }
+          
+          if(tmpPixel.currentLocation.x==p.x && tmpPixel.currentLocation.y==p.y){
+//            ((ArrayList)pixelObjectsByRow.get(k)).remove(((Pixel)((ArrayList)pixelObjectsByRow.get(k)).get(l)));
+//              tmpRow.remove(tmpPixel);
+//            testing++;
+//            println(testing);
+          }
+          
+           
+          }//end row for
+        }//end array for
     }
     popMatrix();
     newSeam = false;
     fired = false;
     
-    ///_________________________________ADD THE SEAMS ARRAYLISTS TO THEIR RESPECTIVE ARRAYS________________________________///
+//    ///_________________________________ADD THE SEAMS ARRAYLISTS TO THEIR RESPECTIVE ARRAYS________________________________///
     seamIndexesOrig.add(seamImageIndexOrig);
     seamIndexes.add(seamImageIndex);
+   
   }
   ///STROKE THE NORMAL IMAGE WITH THE SEAM
   stroke(0, 0, 255);
@@ -201,14 +206,27 @@ void keyPressed() {
     println("number of pixelObjects Orig = " + pixelObjectArrayOrig.size());
     println("number of Seams Index = " + seamIndexes.size());
     println("number of Seams Index Orig = " + seamIndexesOrig.size());
-
-
-//    ArrayList tmpArray = (ArrayList) seamIndexes.get(2);
-//    for (int i=0; i<tmpArray.size(); i++){
-//      Pixel testPix =(Pixel) tmpArray.get(i);
-//      println(testPix.currentLocation);
-//    }
     
+//    println(((ArrayList)pixelObjectsByRow.get(1)).get(1));//returns Pixel
+//    println( ((Pixel)((ArrayList)pixelObjectsByRow.get(1)).get(1)).currentLocation );//returns Pixel properties
+//    println(pixelObjectsByRow.size());//returns Pixel
+//    for(int z=0; z<pixelObjectsByRow.size();z++){
+//    println(((ArrayList)pixelObjectsByRow.get(z)).size());
+//  }
+//      ArrayList data = new ArrayList();   
+//      for(int k=0; k<pixelObjectsByRow.size();k++){
+//          for(int l=0; l<img.width;l++){                    
+//          ArrayList tmpRow = (ArrayList)pixelObjectsByRow.get(k);
+//          Pixel tmpPixel=((Pixel)((ArrayList)pixelObjectsByRow.get(k)).get(l));
+//          data.add(tmpPixel.currentLocation.x);
+//          }}
+//       println(data);   
+  }
+  
+  if(key =='q'){
+  output.flush();  // Writes the remaining data to the file
+  output.close();  // Finishes the file
+  exit();  // Stops the program
   }
 }
 
